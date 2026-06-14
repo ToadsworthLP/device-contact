@@ -1,7 +1,7 @@
 import {Application, Assets, BitmapFont, Texture} from "pixi.js";
 import {DeviceRendererAssets} from "./device-renderer-assets.ts";
 import {PixiJsDeviceRenderer} from "./pixi-js-device-renderer.ts";
-import {IDeviceRenderer} from "./device-renderer.ts";
+import {IDeviceRenderer} from "./i-device-renderer.ts";
 
 export class DeviceRendererFactory {
     public async createPixiJsRenderer(canvas: HTMLCanvasElement) : Promise<IDeviceRenderer> {

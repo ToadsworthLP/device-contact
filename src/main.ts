@@ -7,22 +7,35 @@ import {TextStyle} from "./renderer/text-style.ts";
     const renderer = await new DeviceRendererFactory().createPixiJsRenderer(canvas);
     
     renderer.showBackground();
-    renderer.setText("ARE WE\nCONNECTED?");
-    renderer.setTextStyle(TextStyle.Gaster);
-
+    const text = renderer.createText();
+    
+    text.applyStyle(TextStyle.Gaster);
+    text.text = "ARE WE\nCONNECTED?";
     await timeout(5000);
-    renderer.setText("No. We're not.")
-    renderer.setTextAlignment(TextAlignment.TopLeft);
-    renderer.setTextPosition(0.1, 0.1);
-    renderer.setTextStyle(TextStyle.Normal);
+
+    const text2 = renderer.createText();
+    text2.text = "Test";
+    text2.position = {x: canvas.width / 2, y: canvas.height / 4};
+
     renderer.hideBackground();
-
+    text.applyStyle(TextStyle.Normal)
+    text.alignment = TextAlignment.TopLeft;
+    text.position = {x: 0, y: 0};
+    text.text = "No. We're not.";
     await timeout(5000);
-    renderer.setText("HOW VERY\nUNFORTUNATE.");
-    renderer.setTextAlignment(TextAlignment.Center);
-    renderer.setTextPosition(0.5, 0.5);
-    renderer.setTextStyle(TextStyle.Gaster);
+
     renderer.showBackground();
+    text.applyStyle(TextStyle.Gaster);
+    text.alignment = TextAlignment.Center;
+    text.position = {x: canvas.width / 2, y: canvas.height / 2};
+    text.text = "HOW VERY\nUNFORTUNATE.";
+    text.shownCharacters = 8;
+    await timeout(1000);
+    
+    text.shownCharacters = undefined;
+    await timeout(2000);
+    
+    text2.destroy();
 })();
 
 async function timeout(ms: number): Promise<void> {

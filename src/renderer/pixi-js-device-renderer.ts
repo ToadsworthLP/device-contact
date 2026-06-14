@@ -3,7 +3,8 @@ import {DeviceRendererAssets} from "./device-renderer-assets.ts";
 import {DeviceText} from "./device-text.ts";
 import {DeviceDepths} from "./device-depths.ts";
 import {TextAlignment} from "./text-alignment.ts";
-import {IDeviceRenderer} from "./device-renderer.ts";
+import {IDeviceRenderer} from "./i-device-renderer.ts";
+import { IDeviceText } from "./i-device-text.ts";
 import {TextStyle} from "./text-style.ts";
 
 export class PixiJsDeviceRenderer implements IDeviceRenderer {
@@ -13,7 +14,6 @@ export class PixiJsDeviceRenderer implements IDeviceRenderer {
     private readonly backgroundLayer: RenderLayer;
     private readonly textLayer: RenderLayer;
 
-    private text: DeviceText;
     private background?: DeviceDepths;
 
     constructor(app: Application, assets: DeviceRendererAssets) {
@@ -25,35 +25,23 @@ export class PixiJsDeviceRenderer implements IDeviceRenderer {
 
         this.textLayer = new RenderLayer();
         this.app.stage.addChild(this.textLayer);
-        this.text = this.createText();
 
         this.app.ticker.maxFPS = 30;
     }
-
-    public setText(text: string): void {
-        this.text.text = text;
-    }
-
-    public clearText(): void {
-        this.text.text = "";
-    }
-
-    public setTextShownCharacters(characterCount: number): void {
-        this.text.shownCharacters = characterCount;
-    }
-
-    public setTextPosition(x: number, y: number): void {
-        const xAbsolute = x * this.app.canvas.width;
-        const yAbsolute = y * this.app.canvas.height;
-        this.text.position.set(xAbsolute, yAbsolute);
-    }
-
-    public setTextAlignment(alignment: TextAlignment): void {
-        this.text.alignment = alignment;
-    }
-
-    public setTextStyle(style: TextStyle): void {
-        this.text.type = style;
+    
+    public createText(): IDeviceText {
+        const text = new DeviceText(this.assets.font);
+        text.position.set(this.app.canvas.width / 2, this.app.canvas.height / 2);
+        text.scale.set(2);
+        text.alignment = TextAlignment.Center;
+        text.shownCharacters = undefined;
+        text.visible = true;
+        text.style = TextStyle.Normal;
+        this.textLayer.attach(text);
+        this.app.stage.addChild(text);
+        this.app.ticker.add((timer) => text.tick(timer))
+        
+        return text;
     }
     
     public hideBackground(): void {
@@ -69,24 +57,6 @@ export class PixiJsDeviceRenderer implements IDeviceRenderer {
         if (this.background === undefined) {
             this.background = this.createBackground();
         }
-    }
-    
-    private createText(): DeviceText {
-        const text = new DeviceText(this.assets.font);
-        text.position.set(this.app.canvas.width / 2, this.app.canvas.height / 2);
-        text.scale.set(2);
-        text.alignment = TextAlignment.Center;
-        text.characterWidth = 8;
-        text.characterHeight = 12;
-        text.characterSpacing = 4;
-        text.lineSpacing = 8;
-        text.shownCharacters = null;
-        text.visible = true;
-        this.textLayer.attach(text);
-        this.app.stage.addChild(text);
-        this.app.ticker.add((timer) => text.tick(timer))
-        
-        return text;
     }
     
     private createBackground(): DeviceDepths {
