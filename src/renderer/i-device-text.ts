@@ -8,5 +8,6 @@ export interface IDeviceText {
     alignment: TextAlignment;
     
     applyStyle(style: TextStyle): void;
+    fade(targetAlpha: number, durationInSeconds: number): void;
     destroy(): void;
 }

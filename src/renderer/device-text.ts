@@ -16,6 +16,11 @@ export class DeviceText extends Container<DeviceGlyph> implements IDeviceText {
     private originalString: string = "";
     private lines: string[] = [];
     private glyphsByLines: DeviceGlyph[][] = [];
+    private totalTimeInSeconds: number = 0;
+    private fadeStartAlpha: number = 1;
+    private fadeEndAlpha: number = 1;
+    private fadeStartTime: number = 0;
+    private fadeEndTime: number = 0;
     
     public get alignment(): TextAlignment {
         return this.alignmentInternal;
@@ -92,9 +97,18 @@ export class DeviceText extends Container<DeviceGlyph> implements IDeviceText {
     }
 
     public tick(time: Ticker) {
+        this.totalTimeInSeconds += time.deltaMS / 1000;
+        
         this.children.forEach((glyph) => {
             glyph.tick(time);
         });
+        
+        if (this.fadeEndTime >= this.totalTimeInSeconds) {
+            const t = 1 - ((this.fadeEndTime - this.totalTimeInSeconds) / (this.fadeEndTime - this.fadeStartTime));
+            this.alpha = DeviceText.lerp(this.fadeStartAlpha, this.fadeEndAlpha, t);
+        } else if (this.alpha !== this.fadeEndAlpha) {
+            this.alpha = this.fadeEndAlpha;
+        }
     }
 
     public applyStyle(value: TextStyle): void {
@@ -108,6 +122,13 @@ export class DeviceText extends Container<DeviceGlyph> implements IDeviceText {
 
             this.updateLayout();
         }
+    }
+
+    public fade(targetAlpha: number, durationInSeconds: number): void {
+        this.fadeStartAlpha = this.alpha;
+        this.fadeEndAlpha = targetAlpha;
+        this.fadeStartTime = this.totalTimeInSeconds;
+        this.fadeEndTime = this.fadeStartTime + durationInSeconds;
     }
     
     public destroy(): void {
@@ -149,5 +170,9 @@ export class DeviceText extends Container<DeviceGlyph> implements IDeviceText {
                 }
             }
         }
+    }
+    
+    private static lerp(a: number, b: number, t: number): number {
+        return t * (b - a) + a;
     }
 }
