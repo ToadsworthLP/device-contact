@@ -1,5 +1,5 @@
 import {IScriptInstruction} from "./i-script-instruction.ts";
-import {ScriptContext} from "../script-context.ts";
+import {ExecutionContext} from "../execution-context.ts";
 
 export class SetTextInstruction implements IScriptInstruction {
     private readonly text: string;
@@ -8,8 +8,9 @@ export class SetTextInstruction implements IScriptInstruction {
         this.text = text;
     }
 
-    execute(context: ScriptContext): void {
+    execute(context: ExecutionContext): void {
         context.defaultText.text = this.text;
         context.defaultText.shownCharacters = 0;
+        context.defaultText.fade(1, 0);
     }
 }

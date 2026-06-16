@@ -1,5 +1,5 @@
-import {ScriptContext} from "../script-context.ts";
+import {ExecutionContext} from "../execution-context.ts";
 
 export interface IScriptInstruction {
-    execute(context: ScriptContext): void;
+    execute(context: ExecutionContext): void;
 }

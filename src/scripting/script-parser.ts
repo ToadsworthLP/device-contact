@@ -3,40 +3,61 @@ import {IScriptInstruction} from "./instructions/i-script-instruction.ts";
 import {NopInstruction} from "./instructions/nop-instruction.ts";
 import {SetTextInstruction} from "./instructions/set-text-instruction.ts";
 import {ShowCharacterInstruction} from "./instructions/show-character-instruction.ts";
-import {SleepInstruction} from "./instructions/sleep-instruction.ts";
+import {PagePauseInstruction} from "./instructions/page-pause-instruction.ts";
+import {CharacterPauseInstruction} from "./instructions/character-pause-instruction.ts";
+import {IScriptCommand} from "./commands/i-script-command.ts";
+import {PauseCommand} from "./commands/pause-command.ts";
+import {FadeOutCommand} from "./commands/fade-out-command.ts";
+import {ShowBackgroundCommand} from "./commands/show-background-command.ts";
+import {HideBackgroundCommand} from "./commands/hide-background-command.ts";
 
 export class ScriptParser {
+    private readonly commands: Map<string, IScriptCommand> = new Map<string, IScriptCommand>([
+        ["Pause", new PauseCommand()],
+        ["FadeOut", new FadeOutCommand()],
+        ["ShowBackground", new ShowBackgroundCommand()],
+        ["HideBackground", new HideBackgroundCommand()],
+    ]);
+    
     public parse(text: string): Script {
         const instructions: Array<IScriptInstruction> = [];
         
         let currentPageText = "";
         let currentPageSetTextInstructionIndex = undefined;
         let pageIndex = 0;
-        let pauseAfterCharacterInSeconds = 0.1;
-        let pauseAfterPageInSeconds = 1;
         for (let currentCharacterIndex = 0; currentCharacterIndex < text.length; currentCharacterIndex++) {
             const currentCharacter = text[currentCharacterIndex];
             
-            if (currentCharacter === "[" && currentCharacterIndex !== 0 && text[currentCharacterIndex - 1] !== '\\') {
+            if (currentCharacter === "[" && (currentCharacterIndex === 0 || (currentCharacterIndex !== 0 && text[currentCharacterIndex - 1] !== '\\'))) {
                 // Commands
-                let command = "";
+                let commandText = "";
 
                 let commandCharacterIndex = 1;
                 let firstSpaceIndex = undefined;
                 while(currentCharacterIndex + commandCharacterIndex < text.length && text[currentCharacterIndex + commandCharacterIndex] !== ']') {
-                    if(text[currentCharacterIndex + commandCharacterIndex] === ' ' && firstSpaceIndex === undefined) firstSpaceIndex = commandCharacterIndex - 1;
+                    if(text[currentCharacterIndex + commandCharacterIndex] === ' ' && firstSpaceIndex === undefined) {
+                        firstSpaceIndex = commandCharacterIndex - 1;
+                    }
 
-                    command += text[currentCharacterIndex + commandCharacterIndex];
+                    commandText += text[currentCharacterIndex + commandCharacterIndex];
                     commandCharacterIndex++;
                 }
 
-                let commandName = command.substring(0, firstSpaceIndex);
-                let commandArgs = firstSpaceIndex === undefined ? "" : command.substring(firstSpaceIndex + 1);
+                const commandName = commandText.substring(0, firstSpaceIndex);
+                const commandArgs = firstSpaceIndex === undefined ? [] : commandText.substring(firstSpaceIndex + 1).split(" ");
                 
-                // TODO implement command processing
+                const command = this.commands.get(commandName);
+                if (command) {
+                    const resultingInstructions = command.parse(commandArgs);
+                    for (const instruction of resultingInstructions) {
+                        instructions.push(instruction);
+                    }
+                }
 
                 currentCharacterIndex += commandCharacterIndex;
             } else if (currentCharacter === "\n" && currentCharacterIndex + 1 < text.length && text[currentCharacterIndex + 1] === '\n') {
+                instructions.push(new PagePauseInstruction());
+
                 // Page break
                 if(currentPageSetTextInstructionIndex !== undefined) {
                     instructions[currentPageSetTextInstructionIndex] = new SetTextInstruction(currentPageText);
@@ -49,15 +70,13 @@ export class ScriptParser {
             } else {
                 // Normal text
                 if(currentPageSetTextInstructionIndex === undefined) {
-                    if(pageIndex !== 0) instructions.push(new SleepInstruction(pauseAfterPageInSeconds));
-                    
                     instructions.push(NopInstruction.instance);
                     currentPageSetTextInstructionIndex = instructions.length - 1;
                 }
                 
                 currentPageText += currentCharacter;
                 instructions.push(new ShowCharacterInstruction());
-                instructions.push(new SleepInstruction(pauseAfterCharacterInSeconds));
+                instructions.push(new CharacterPauseInstruction());
             }
         }
 
