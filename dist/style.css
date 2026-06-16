@@ -1,0 +1,39 @@
+@font-face {
+    font-family: "8bitoperator JVE";
+    font-weight: normal;
+    font-style: normal;
+    src:    url("assets/fonts/vector/8bitoperator_jve.eot?") format("eot"),
+            url("assets/fonts/vector/8bitoperator_jve.woff") format("woff"),
+            url("assets/fonts/vector/8bitoperator_jve.ttf") format("truetype"),
+            url("assets/fonts/vector/8bitoperator_jve.svg#8bitoperator-JVE") format("svg");
+}
+
+body {
+    background: #000;
+    margin: 0;
+    padding: 0;
+
+    font-family: "8bitoperator JVE", monospace;
+    font-size: 16px;
+    color: white;
+}
+
+#container {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    flex-grow: 1;
+    image-rendering: pixelated;
+}
