@@ -75,8 +75,10 @@ export class ScriptParser {
                 }
                 
                 currentPageText += currentCharacter;
-                instructions.push(new ShowCharacterInstruction());
-                instructions.push(new CharacterPauseInstruction());
+                if(currentCharacter !== "\n") {
+                    instructions.push(new ShowCharacterInstruction());
+                    instructions.push(new CharacterPauseInstruction());
+                }
             }
         }
 

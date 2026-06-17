@@ -7,12 +7,11 @@ export class CharacterPauseInstruction implements IScriptInstruction {
         [".", 4],
         [",", 4],
         ["!", 4],
-        ["?", 4],
-        ["\n", 10],
+        ["?", 4]
     ]);
 
     execute(context: ExecutionContext): void {
-        const currentCharacterIndex = context.defaultText.shownCharacters ?? context.defaultText.text.length;
+        const currentCharacterIndex = context.defaultText.shownCharacters ?? context.defaultText.text.replace("\n", "").length;
         const currentCharacter = context.defaultText.text[currentCharacterIndex];
         const currentCharacterSpeedMultiplier = CharacterPauseInstruction.specialCharacterPauseMultipliers.get(currentCharacter);
         

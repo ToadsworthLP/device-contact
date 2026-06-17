@@ -36,7 +36,7 @@ export class PixiJsDeviceRenderer implements IDeviceRenderer {
         text.alignment = TextAlignment.Center;
         text.shownCharacters = undefined;
         text.visible = true;
-        text.style = TextStyle.Normal;
+        text.applyStyle(TextStyle.Normal);
         this.textLayer.attach(text);
         this.app.stage.addChild(text);
         this.app.ticker.add((timer) => text.tick(timer))

@@ -15,10 +15,10 @@ export class DeviceRendererFactory {
             antialias: false,
         });
 
-        const depthsTexture = (await Assets.load("/assets/images/depths.png")) as Texture;
+        const depthsTexture = (await Assets.load("./assets/images/depths.png")) as Texture;
         depthsTexture.source.scaleMode = "nearest";
 
-        const font = (await Assets.load("/assets/fonts/bitmap/eightbitoperator.fnt")) as BitmapFont;
+        const font = (await Assets.load("./assets/fonts/bitmap/eightbitoperator.fnt")) as BitmapFont;
         font.pages.forEach((texture) => (texture.texture.source.scaleMode = "nearest"));
         
         const assets = new DeviceRendererAssets(depthsTexture, font);
